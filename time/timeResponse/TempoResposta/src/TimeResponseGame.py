@@ -22,40 +22,52 @@ font = pygame.font.Font(None, 74)
 # Alfabeto
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-# Função para centralizar e mostrar texto
+def read_best_time(difficulty):
+    try:
+        with open(f'best_time_{difficulty}.txt', 'r') as file:
+            return float(file.read())
+    except FileNotFoundError:
+        return None
+
+def write_best_time(difficulty, time_seconds):
+    with open(f'best_time_{difficulty}.txt', 'w') as file:
+        file.write(str(time_seconds))
+
 def draw_text(message, y, color=white, final=False):
     text = font.render(message, True, color)
     text_rect = text.get_rect(center=(screen_width // 2, y))
     screen.blit(text, text_rect)
 
-# Função para desenhar as letras
 def draw_letters(letter_colors, random_positions, random_letters):
     for i, letter in enumerate(random_letters):
         text = font.render(letter, True, letter_colors[i])
         screen.blit(text, random_positions[i])
 
-# Função para mostrar o tempo de cada etapa e o tempo médio final
-def show_time(time_seconds, final=False):
+def show_time(time_seconds, best_time=0, final=False):
     screen.fill(black)
+    draw_text(f" Tempo: {time_seconds:.2f} segundos", 250, white, final)
     if final:
-        draw_text(f"Tempo médio total: {time_seconds:.2f} segundos", 250, white, final=True)
-        draw_text("Fim do jogo. Pressione qualquer tecla", 350, white)
+        draw_text("Fim do jogo", 350, white)
+        draw_text("Pressione qualquer tecla para sair", 400, white)
+        draw_text(f'Recorde: {best_time:.2f} segundos', 500, white)
 
-    else:
-        draw_text(f"Tempo desta etapa: {time_seconds:.2f} segundos", 250)
     pygame.display.flip()
+
     if final:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or event.type == pygame.KEYDOWN:
                     return
 
-# Função para a tela inicial
 def show_start_screen():
     screen.fill(black)
-    draw_text("Pressione qualquer tecla para iniciar", 250)
+    draw_text("Jogo da Digitação", 100)
+    draw_text("Pressione:", 200)
+    draw_text("1. Fácil - Sequencial", 260)
+    draw_text("2. Difícil - Aleatório", 320)
     pygame.display.flip()
 
+    difficulty = 1  # Modo fácil por padrão
     waiting = True
     while waiting:
         for event in pygame.event.get():
@@ -63,11 +75,17 @@ def show_start_screen():
                 pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN:
-                waiting = False
+                if event.key == pygame.K_1:
+                    difficulty = 1  # Modo fácil
+                    waiting = False
+                elif event.key == pygame.K_2:
+                    difficulty = 2  # Modo difícil
+                    waiting = False
 
-# Main loop do jogo
+    return difficulty
+
 def main():
-    show_start_screen()
+    difficulty = show_start_screen()
 
     times = []
     counter = 0
@@ -75,8 +93,11 @@ def main():
     for _ in range(10):  # 10 etapas
         running = True
         random_letters = random.sample(letters, 4)
-        #random_positions = [(random.randint(100, screen_width - 100), random.randint(100, screen_height - 100)) for _ in range(4)]
-        random_positions = [(screen_width // 2 - 150 + 100 * i, screen_height // 2) for i in range(4)]
+
+        if difficulty == 1:
+            random_positions = [(screen_width // 2 - 150 + 100 * i, screen_height // 2) for i in range(4)]
+        else:
+            random_positions = [(random.randint(100, screen_width - 100), random.randint(100, screen_height - 100)) for _ in range(4)]
 
         letter_colors = [white] * 4
         start_time = time.time()
@@ -108,7 +129,17 @@ def main():
         counter += 1
 
     average_time = sum(times) / len(times)
-    show_time(average_time, final=True)
+
+    best_time = read_best_time(difficulty)
+    if best_time is None or average_time < best_time:
+        write_best_time(difficulty, average_time)
+        best_time = average_time
+
+    show_time(average_time, best_time,final=True)
+
+
+
+
 
     pygame.quit()
 

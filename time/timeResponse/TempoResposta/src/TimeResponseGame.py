@@ -6,7 +6,7 @@ import time
 pygame.init()
 
 # Configurações da tela
-screen_width = 1200
+screen_width = 1000
 screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Jogo de Digitação')
@@ -19,7 +19,7 @@ green = (0, 255, 0)
 # Fonte
 font = pygame.font.Font(None, 74)
 
-# Letras aleatórias
+# Alfabeto
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 # Função para centralizar e mostrar texto
@@ -39,6 +39,7 @@ def show_time(time_seconds, final=False):
     screen.fill(black)
     if final:
         draw_text(f"Tempo médio total: {time_seconds:.2f} segundos", 250, white, final=True)
+        draw_text("Fim do jogo. Pressione qualquer tecla", 350, white)
 
     else:
         draw_text(f"Tempo desta etapa: {time_seconds:.2f} segundos", 250)

@@ -45,11 +45,13 @@ def draw_letters(letter_colors, random_positions, random_letters):
 
 def show_time(time_seconds, best_time=0, final=False):
     screen.fill(black)
-    draw_text(f" Tempo: {time_seconds:.2f} segundos", 250, white, final)
     if final:
-        draw_text("Fim do jogo", 350, white)
+        draw_text("Fim do jogo", 250, white)
+        draw_text(f" Tempo médio: {time_seconds:.2f} segundos", 350, white, final)
         draw_text("Pressione qualquer tecla para sair", 400, white)
         draw_text(f'Recorde: {best_time:.2f} segundos', 500, white)
+    else:
+        draw_text(f" Tempo: {time_seconds:.2f} segundos", 250, white, final)
 
     pygame.display.flip()
 
@@ -136,10 +138,6 @@ def main():
         best_time = average_time
 
     show_time(average_time, best_time,final=True)
-
-
-
-
 
     pygame.quit()
 
